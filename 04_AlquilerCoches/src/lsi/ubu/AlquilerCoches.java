@@ -12,6 +12,7 @@ import lsi.ubu.util.ExecuteScript;
  * AlquierCoches: Implementa la facturacion de un coche de alquiler segun el PDF de la carpeta enunciado
  * 
  * @author No oscar
+ * Dieguito se come un bocadillito
  * 
  * @version 1.0
  * @since 1.0
