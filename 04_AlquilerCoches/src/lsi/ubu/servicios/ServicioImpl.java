@@ -93,22 +93,33 @@ public class ServicioImpl implements Servicio {
 	        }
 	        
 	        //Verificamos que el coche está disponible
+	        int free_car_index = 1;
 	        st_checkDisponible = con.prepareStatement(
-	        	    "SELECT COUNT(*) FROM reservas WHERE matricula = ? AND fecha_fin >= ? AND fecha_ini <= ?");
-	        st_checkDisponible.setString(1,matricula);
-	        st_checkDisponible.setDate(2,(java.sql.Date) fechaIni);
-	        st_checkDisponible.setDate(3,(java.sql.Date) fechaFin);
+	        	    "SELECT COUNT(*) FROM reservas WHERE matricula = ? AND (" + 
+	        		"(fecha_fin >= ? AND fecha_ini <= ?) OR " +
+	        	    "(fecha_fin >= ? AND fecha_ini <= ?  ) OR " +
+	        		"(fecha_fin >= ? AND fecha_ini <= ?  ) OR" +
+	        	    "(fecha_fin >= ? AND fecha_ini >= ? ))");
+	        st_checkDisponible.setString(free_car_index++,matricula);
+	        st_checkDisponible.setDate(free_car_index++,(java.sql.Date) fechaIni);
+	        st_checkDisponible.setDate(free_car_index++,(java.sql.Date) fechaFin);
+	        st_checkDisponible.setDate(free_car_index++,(java.sql.Date) fechaIni);
+	        st_checkDisponible.setDate(free_car_index++,(java.sql.Date) fechaIni);
+	        st_checkDisponible.setDate(free_car_index++,(java.sql.Date) fechaFin);
+	        st_checkDisponible.setDate(free_car_index++,(java.sql.Date) fechaIni);
+	        st_checkDisponible.setDate(free_car_index++,(java.sql.Date) fechaFin);
+	        st_checkDisponible.setDate(free_car_index++,(java.sql.Date) fechaIni);
 	        rs_checkDisponible = st_checkDisponible.executeQuery();
 	        
 	        if (rs_checkDisponible.getInt(1) > 0) {
 	        	throw new AlquilerCochesException(AlquilerCochesException.VEHICULO_OCUPADO);
 	        }
-	        
+	        int insert_index = 1;
 	        st_Insert = con.prepareStatement("INSERT INTO reservas VALUES (seq_reservas.nextval,?,?,?,?)");
-	        st_Insert.setString(1,nifCliente);
-	        st_Insert.setString(2,matricula);
-	        st_Insert.setDate(3, (java.sql.Date) fechaIni);
-	        st_Insert.setDate(4, (java.sql.Date) fechaFin);
+	        st_Insert.setString(insert_index++,nifCliente);
+	        st_Insert.setString(insert_index++,matricula);
+	        st_Insert.setDate(insert_index++, (java.sql.Date) fechaIni);
+	        st_Insert.setDate(insert_index++, (java.sql.Date) fechaFin);
 	        int filasMod= st_Insert.executeUpdate();
 	        
 	        if (filasMod != 0) {
