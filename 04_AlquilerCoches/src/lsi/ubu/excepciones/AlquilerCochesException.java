@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:jmaudes@ubu.es">Jesus Maudes</a>
  * @author <a href="mailto:rmartico@ubu.es">Raul Marticorena</a>
- * @author <a href="mailto:srarribas@ubu.es">Sandra Rodr�guez</a>
+ * @author <a href="mailto:srarribas@ubu.es">Sandra Rodr�guez</a>
  * @version 1.2
  * @since 1.0
  */
@@ -34,13 +34,36 @@ public class AlquilerCochesException extends SQLException {
 		/*
 		 * A completar por el alumnado
 		 */
+		
+		switch (code) {
+		case CLIENTE_NO_EXIST:
+			this.mensaje = "ERROR: " + code + " Cliente inexistente";
+			this.codigo=code;
+			break;
+		
+		case VEHICULO_NO_EXIST:
+			this.mensaje = "ERROR: " + code + " Vehículo inexistente";
+			this.codigo = code;
+			break;
+			
+		case SIN_DIAS:
+			this.mensaje = "ERROR: " + code + "El número de días será mayor que cero";
+			this.codigo = code;
+			break;
+			
+		case VEHICULO_OCUPADO:
+			this.mensaje = "ERROR: " + code + "El vehículo no está disponible";
+			this.codigo = code;
+		}
 
 		LOGGER.debug(mensaje);
 
 		// Traza_de_pila
+		/*
 		for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
 			LOGGER.debug(ste.toString());
 		}
+		*/
 	}
 
 	@Override

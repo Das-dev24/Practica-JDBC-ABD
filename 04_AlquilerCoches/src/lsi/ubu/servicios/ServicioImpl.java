@@ -47,7 +47,9 @@ public class ServicioImpl implements Servicio {
 
 		try {
 			con = pool.getConnection();
+			LOGGER.debug("Conexión obtenida del pool");
 	        con.setAutoCommit(false);
+	        LOGGER.debug("Se desactiva el autocommit");
 	        /* A completar por el alumnado... */
 
 			/* ================================= AYUDA R�PIDA ===========================*/
@@ -72,8 +74,8 @@ public class ServicioImpl implements Servicio {
 			 */
 	        
 	        //Verificamos que existe el cliente
+	        int client_exists_index = 1;
 	        st_checkCliente = con.prepareStatement("SELECT COUNT(*) FROM clientes WHERE NIF = ?");
-	        st_checkCliente.setString(1,nifCliente);
 	        rs_checkCliente = st_checkCliente.executeQuery();
 	        
 	        if(rs_checkCliente.getInt(1) == 0) {
@@ -81,8 +83,9 @@ public class ServicioImpl implements Servicio {
 	        }
 	        
 	        //Verificamos que el coche existe
+	        int car_exists_index = 1;
 	        st_checkVehiculo = con.prepareStatement("SELECT COUNT(*) FROM vehiculos WHERE matricula = ?");
-	        st_checkVehiculo.setString(1,matricula);
+	        st_checkVehiculo.setString(car_exists_index++,matricula);
 	        rs_checkVehiculo = st_checkVehiculo.executeQuery();
 	        
 	        if(rs_checkVehiculo.getInt(1) == 0) {
