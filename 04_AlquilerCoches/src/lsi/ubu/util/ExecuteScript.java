@@ -32,6 +32,7 @@ public class ExecuteScript {
 	 * 
 	 * @param file_name nombre del script .sql a ejecutar
 	 */
+	@SuppressWarnings("deprecation")
 	public static void run(String file_name) {
 		String os = System.getProperty("os.name").toLowerCase();
 

@@ -190,6 +190,7 @@ public class PoolDeConexiones {
 	 * @param maxLimit     tama�o maximo
 	 * @throws SQLException si hay un error con la cache de conexiones
 	 */
+	@SuppressWarnings("unused")
 	private void resizePool(int initialLimit, int minLimit, int maxLimit) throws SQLException {
 		((PoolDataSource) ds).setMinPoolSize(minLimit);
 		((PoolDataSource) ds).setMaxPoolSize(maxLimit);
@@ -203,6 +204,7 @@ public class PoolDeConexiones {
 	 * @return texto con las caracteristicas actuales
 	 * @throws SQLException si hay un error con la base de datos
 	 */
+	@SuppressWarnings("unused")
 	private String traceOracleSettings() throws SQLException {
 		PoolDataSource pds = (PoolDataSource) ds;
 
