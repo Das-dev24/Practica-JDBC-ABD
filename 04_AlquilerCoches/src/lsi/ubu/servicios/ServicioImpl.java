@@ -22,9 +22,11 @@ public class ServicioImpl implements Servicio {
 		PoolDeConexiones pool = PoolDeConexiones.getInstance();
 
 		Connection con = null;
-		PreparedStatement st = null;
-		ResultSet rs = null;
-
+		PreparedStatement st_checkCliente = null;
+		ResultSet rs_checkCliente = null;
+		
+		PreparedStatement st_checkVehiculo = null;
+		ResultSet rs_checkVehiculo = null;
 		/*
 		 * El calculo de los dias se da hecho
 		 */
@@ -39,10 +41,10 @@ public class ServicioImpl implements Servicio {
 
 		try {
 			con = pool.getConnection();
+	        con.setAutoCommit(false);
+	        /* A completar por el alumnado... */
 
-			/* A completar por el alumnado... */
-
-			/* ================================= AYUDA RÁPIDA ===========================*/
+			/* ================================= AYUDA Rï¿½PIDA ===========================*/
 			/*
 			 * Algunas de las columnas utilizan tipo numeric en SQL, lo que se traduce en
 			 * BigDecimal para Java.
@@ -62,7 +64,24 @@ public class ServicioImpl implements Servicio {
 			 * calcular sumando los dias de alquiler (ver variable DIAS_DE_ALQUILER) a la
 			 * fecha ini.
 			 */
-
+	        st_checkCliente = con.prepareStatement("SELECT COUNT(*) FROMclientes WHERE NIF = ?");
+	        st_checkCliente.setString(1,nifCliente);
+	        rs_checkCliente = st_checkCliente.executeQuery();
+	        
+	        if(rs_checkCliente.getInt(1) == 0) {
+	        	throw new AlquilerCochesException(AlquilerCochesException.CLIENTE_NO_EXIST);//Lanzamos la excepcion;
+	        }
+	        
+	        st_checkVehiculo = con.prepareStatement("SELECT COUNT(*) FROM vehiculos WHERE matricula = ?");
+	        st_checkVehiculo.setString(1,matricula);
+	        rs_checkVehiculo = st_checkVehiculo.executeQuery();
+	        
+	        if(rs_checkVehiculo.getInt(1) == 0) {
+	        	throw new AlquilerCochesException(AlquilerCochesException.VEHICULO_NO_EXIST);//Lanzamos la excepcion;
+	        }
+	        
+	        
+			
 		} catch (SQLException e) {
 			// Completar por el alumno
 
