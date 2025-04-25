@@ -76,7 +76,9 @@ public class ServicioImpl implements Servicio {
 	        //Verificamos que existe el cliente
 	        int client_exists_index = 1;
 	        st_checkCliente = con.prepareStatement("SELECT COUNT(*) FROM clientes WHERE NIF = ?");
+	        st_checkCliente.setString(client_exists_index, nifCliente);
 	        rs_checkCliente = st_checkCliente.executeQuery();
+	        
 	        
 	        if(rs_checkCliente.getInt(1) == 0) {
 	        	throw new AlquilerCochesException(AlquilerCochesException.CLIENTE_NO_EXIST);//Lanzamos la excepcion;
@@ -125,20 +127,23 @@ public class ServicioImpl implements Servicio {
 	        if (filasMod != 0) {
 	        	throw new SQLException();
 	        }
+	        con.commit();
 	        
 			
-		} catch (SQLException e) {
-			// Completar por el alumno
-
-			if (con != null) {
-	            try {
-	                con.rollback();
-	            } catch (SQLException ex) {
-	                LOGGER.error("Error en rollback: " + ex.getMessage());
-	            }
-	        }
+		} catch (AlquilerCochesException e) {
+			if(con!=null) con.rollback();
+			throw e;
 			
-			LOGGER.error("Error SQL 2: " + e.getMessage());
+		} catch (SQLException e) {
+			try {
+				if(con!=null) con.rollback();
+			} catch (SQLException rollbackEx) {
+				LOGGER.error("Error al hacer rollback", rollbackEx);
+			}
+
+
+			
+			//LOGGER.error("Error SQL 2: " + e.getMessage());
 
 			throw e;
 
