@@ -156,13 +156,7 @@ public class ServicioImpl implements Servicio {
 	            throw new SQLException("No se pudo obtener información del modelo del vehículo");
 	        }
 	        
-	        // Obtener los datos del modelo
-	        int idModelo = rs_getDatosModelo.getInt("id_modelo");
-	        String nombreModelo = rs_getDatosModelo.getString("nombre");
-	        BigDecimal precioPorDia = rs_getDatosModelo.getBigDecimal("precio_cada_dia");
-	        int capacidadDeposito = rs_getDatosModelo.getInt("capacidad_deposito");
-	        String tipoCombustible = rs_getDatosModelo.getString("tipo_combustible");
-	        BigDecimal precioPorLitro = rs_getDatosModelo.getBigDecimal("precio_por_litro");
+
 	        
 	        
 	        con.commit();
