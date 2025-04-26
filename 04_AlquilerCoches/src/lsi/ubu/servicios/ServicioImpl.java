@@ -130,12 +130,12 @@ public class ServicioImpl implements Servicio {
 	        	    "(fecha_fin >= ? AND fecha_ini >= ? ))");
 	        st_checkDisponible.setString(free_car_index++,matricula);
 	        st_checkDisponible.setDate(free_car_index++,sqlIni);
-	        st_checkDisponible.setDate(free_car_index++,sqlFin);
+	        st_checkDisponible.setDate(free_car_index++,sqlFinTemp);
 	        st_checkDisponible.setDate(free_car_index++,sqlIni);
 	        st_checkDisponible.setDate(free_car_index++,sqlIni);
-	        st_checkDisponible.setDate(free_car_index++,sqlFin);
+	        st_checkDisponible.setDate(free_car_index++,sqlFinTemp);
 	        st_checkDisponible.setDate(free_car_index++,sqlIni);
-	        st_checkDisponible.setDate(free_car_index++,sqlFin);
+	        st_checkDisponible.setDate(free_car_index++,sqlFinTemp);
 	        st_checkDisponible.setDate(free_car_index++,sqlIni);
 	        rs_checkDisponible = st_checkDisponible.executeQuery();
 	        
