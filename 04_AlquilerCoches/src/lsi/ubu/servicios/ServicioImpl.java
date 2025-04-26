@@ -122,7 +122,7 @@ public class ServicioImpl implements Servicio {
 	            sqlFin = new java.sql.Date(fechaFin.getTime());
 	        }
 
-	        // Para verificar disponibilidad, necesitamos una fecha fin temporal si es null
+	        // Para verificar disponibilidad, necesitamos una fecha fin temporal si es dada como null
 	        java.sql.Date sqlFinTemp = (fechaFin == null) ? 
 	            new java.sql.Date(sqlIni.getTime() + DIAS_DE_ALQUILER*86_400_000L) : 
 	            sqlFin;
@@ -200,10 +200,11 @@ public class ServicioImpl implements Servicio {
 	     st_createFactura.close();
 
 	     // Ahora insertamos la factura con el nroFactura que acabamos de obtener
+	     int createFactura_index = 1;
 	     st_createFactura = con.prepareStatement("INSERT INTO facturas VALUES (?, ?, ?)");
-	     st_createFactura.setInt(1, nroFactura);
-	     st_createFactura.setBigDecimal(2, importeTotal);
-	     st_createFactura.setString(3, nifCliente);
+	     st_createFactura.setInt(createFactura_index++, nroFactura);
+	     st_createFactura.setBigDecimal(createFactura_index++, importeTotal);
+	     st_createFactura.setString(createFactura_index++, nifCliente);
 	     int filasInsertadasFactura = st_createFactura.executeUpdate();
 
 	     if (filasInsertadasFactura == 0) {
