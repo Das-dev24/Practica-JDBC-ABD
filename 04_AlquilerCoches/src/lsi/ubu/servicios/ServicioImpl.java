@@ -82,11 +82,7 @@ public class ServicioImpl implements Servicio {
 			 * fecha ini.
 			 */
 	        
-	        //Verificamos que existe el cliente
-	        int client_exists_index = 1;
-	        st_checkCliente = con.prepareStatement("SELECT COUNT(*) FROM clientes WHERE NIF = ?");
-	        st_checkCliente.setString(client_exists_index, nifCliente);
-	        rs_checkCliente = st_checkCliente.executeQuery();
+
 	        
 	        //Verificamos que el coche existe
 	        int car_exists_index = 1;
@@ -98,12 +94,20 @@ public class ServicioImpl implements Servicio {
 	        	throw new AlquilerCochesException (AlquilerCochesException.VEHICULO_NO_EXIST);
 	        }
 	        
+	        //Verificamos que existe el cliente
+	        int client_exists_index = 1;
+	        st_checkCliente = con.prepareStatement("SELECT COUNT(*) FROM clientes WHERE NIF = ?");
+	        st_checkCliente.setString(client_exists_index, nifCliente);
+	        rs_checkCliente = st_checkCliente.executeQuery();
+	        
 	        if (rs_checkCliente.next()) {
 	        	int nClientes = rs_checkCliente.getInt(1);
 	        	if(nClientes == 0) {
 	        		throw new AlquilerCochesException ( AlquilerCochesException.CLIENTE_NO_EXIST);
 	        	} 
 	        }
+	        
+
 	        
 
 
