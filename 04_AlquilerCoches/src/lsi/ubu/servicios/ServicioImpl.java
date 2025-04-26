@@ -1,5 +1,6 @@
 package lsi.ubu.servicios;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,6 +33,9 @@ public class ServicioImpl implements Servicio {
 		ResultSet rs_checkDisponible = null;
 		
 		PreparedStatement st_Insert = null;
+		
+		PreparedStatement st_getDatosModelo = null;
+		ResultSet rs_getDatosModelo = null;
 		
 		/*
 		 * El calculo de los dias se da hecho
@@ -137,6 +141,30 @@ public class ServicioImpl implements Servicio {
 	        if (filasMod == 0) {
 	        	throw new SQLException();
 	        }
+	        
+	        
+	        st_getDatosModelo = con.prepareStatement("SELECT m.id_modelo, m.nombre, m.precio_cada_dia, m.capacidad_deposito, m.tipo_combustible, pc.precio_por_litro " +
+	            "FROM vehiculos v " +
+	            "JOIN modelos m ON v.id_modelo = m.id_modelo " +
+	            "JOIN precio_combustible pc ON m.tipo_combustible = pc.tipo_combustible " +
+	            "WHERE v.matricula = ?");
+	        
+	        st_getDatosModelo.setString(1, matricula);
+	        rs_getDatosModelo = st_getDatosModelo.executeQuery();
+	        
+	        if (!rs_getDatosModelo.next()) {
+	            throw new SQLException("No se pudo obtener información del modelo del vehículo");
+	        }
+	        
+	        // Obtener los datos del modelo
+	        int idModelo = rs_getDatosModelo.getInt("id_modelo");
+	        String nombreModelo = rs_getDatosModelo.getString("nombre");
+	        BigDecimal precioPorDia = rs_getDatosModelo.getBigDecimal("precio_cada_dia");
+	        int capacidadDeposito = rs_getDatosModelo.getInt("capacidad_deposito");
+	        String tipoCombustible = rs_getDatosModelo.getString("tipo_combustible");
+	        BigDecimal precioPorLitro = rs_getDatosModelo.getBigDecimal("precio_por_litro");
+	        
+	        
 	        con.commit();
 	        
 			
