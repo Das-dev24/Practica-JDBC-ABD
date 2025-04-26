@@ -110,6 +110,8 @@ public class ServicioImpl implements Servicio {
 	        
 	        //Verificamos que el coche está disponible
 	        int free_car_index = 1;
+	        
+	        //Declaración de fechas mejorada, manteniendo la fecha como null en la BD si se da null.
 	        java.sql.Date sqlIni = new java.sql.Date(fechaIni.getTime());
 	        java.sql.Date sqlFin = null;
 	        if (fechaFin != null) {
