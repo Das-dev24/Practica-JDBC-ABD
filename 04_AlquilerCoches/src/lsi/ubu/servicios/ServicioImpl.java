@@ -37,6 +37,11 @@ public class ServicioImpl implements Servicio {
 		PreparedStatement st_getDatosModelo = null;
 		ResultSet rs_getDatosModelo = null;
 		
+		PreparedStatement st_createFactura = null;
+		ResultSet rs_createFactura = null;
+		
+		PreparedStatement st_createLineaFactura = null;
+		
 		/*
 		 * El calculo de los dias se da hecho
 		 */
@@ -106,9 +111,15 @@ public class ServicioImpl implements Servicio {
 	        //Verificamos que el coche está disponible
 	        int free_car_index = 1;
 	        java.sql.Date sqlIni = new java.sql.Date(fechaIni.getTime());
-	        java.sql.Date sqlFin = (fechaFin == null) ? 
-	        		new java.sql.Date(sqlIni.getTime() + DIAS_DE_ALQUILER*86_400_000L) :
-	        		new java.sql.Date(fechaFin.getTime());
+	        java.sql.Date sqlFin = null;
+	        if (fechaFin != null) {
+	            sqlFin = new java.sql.Date(fechaFin.getTime());
+	        }
+
+	        // Para verificar disponibilidad, necesitamos una fecha fin temporal si es null
+	        java.sql.Date sqlFinTemp = (fechaFin == null) ? 
+	            new java.sql.Date(sqlIni.getTime() + DIAS_DE_ALQUILER*86_400_000L) : 
+	            sqlFin;
 	        st_checkDisponible = con.prepareStatement(
 	        	    "SELECT COUNT(*) FROM reservas WHERE matricula = ? AND (" + 
 	        		"(fecha_fin >= ? AND fecha_ini <= ?) OR " +
@@ -156,9 +167,62 @@ public class ServicioImpl implements Servicio {
 	            throw new SQLException("No se pudo obtener información del modelo del vehículo");
 	        }
 	        
+	        // Obtener los datos del modelo
+	        int idModelo = rs_getDatosModelo.getInt("id_modelo");
+	        String nombreModelo = rs_getDatosModelo.getString("nombre");
+	        BigDecimal precioPorDia = rs_getDatosModelo.getBigDecimal("precio_cada_dia");
+	        int capacidadDeposito = rs_getDatosModelo.getInt("capacidad_deposito");
+	        String tipoCombustible = rs_getDatosModelo.getString("tipo_combustible");
+	        BigDecimal precioPorLitro = rs_getDatosModelo.getBigDecimal("precio_por_litro");
+	        
+	        // Calcular el importe de la factura
+	        BigDecimal importeAlquiler = precioPorDia.multiply(new BigDecimal(diasDiff));
+	        BigDecimal importeDeposito = precioPorLitro.multiply(new BigDecimal(capacidadDeposito));
+	        BigDecimal importeTotal = importeAlquiler.add(importeDeposito);
+	        
+	     // Crear la factura - usando secuencia y luego obteniendo el valor
+	     // Primero obtenemos el valor de la secuencia
+	     st_createFactura = con.prepareStatement("SELECT seq_num_fact.nextval FROM dual");
+	     rs_createFactura = st_createFactura.executeQuery();
 
+	     if (!rs_createFactura.next()) {
+	         throw new SQLException("No se pudo obtener el siguiente valor de la secuencia");
+	     }
+
+	     int nroFactura = rs_createFactura.getInt(1);
+	     rs_createFactura.close();
+	     st_createFactura.close();
+
+	     // Ahora insertamos la factura con el nroFactura que acabamos de obtener
+	     st_createFactura = con.prepareStatement("INSERT INTO facturas VALUES (?, ?, ?)");
+	     st_createFactura.setInt(1, nroFactura);
+	     st_createFactura.setBigDecimal(2, importeTotal);
+	     st_createFactura.setString(3, nifCliente);
+	     int filasInsertadasFactura = st_createFactura.executeUpdate();
+
+	     if (filasInsertadasFactura == 0) {
+	         throw new SQLException("No se pudo crear la factura");
+	     }
 	        
+	        // Crear la línea de factura para el alquiler
+	        String conceptoAlquiler = diasDiff + " dias de alquiler, vehiculo modelo " + idModelo + "   ";
+	        st_createLineaFactura = con.prepareStatement(
+	            "INSERT INTO lineas_factura VALUES (?, ?, ?)");
+	        st_createLineaFactura.setInt(1, nroFactura);
+	        st_createLineaFactura.setString(2, conceptoAlquiler);
+	        st_createLineaFactura.setBigDecimal(3, importeAlquiler);
+	        st_createLineaFactura.executeUpdate();
 	        
+	        // Crear la línea de factura para el depósito de combustible
+	        String conceptoDeposito = "Deposito lleno de " + capacidadDeposito + " litros de " + tipoCombustible + " ";
+	        st_createLineaFactura = con.prepareStatement(
+	            "INSERT INTO lineas_factura VALUES (?, ?, ?)");
+	        st_createLineaFactura.setInt(1, nroFactura);
+	        st_createLineaFactura.setString(2, conceptoDeposito);
+	        st_createLineaFactura.setBigDecimal(3, importeDeposito);
+	        st_createLineaFactura.executeUpdate();
+	        
+	        // Confirmar la transacción
 	        con.commit();
 	        
 			
