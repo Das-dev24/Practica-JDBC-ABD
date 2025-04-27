@@ -71,31 +71,7 @@ public class ServicioImpl implements Servicio {
 			LOGGER.debug("Conexión obtenida del pool");
 			con.setAutoCommit(false); // Desactiva el autocommit para controlar la transacción manualmente
 			LOGGER.debug("Se desactiva el autocommit");
-			/* A completar por el alumnado... */
-
-			/*
-			 * ================================= AYUDA RPIDA
-			 * ===========================
-			 */
-			/*
-			 * Algunas de las columnas utilizan tipo numeric en SQL, lo que se traduce en
-			 * BigDecimal para Java.
-			 *
-			 * Convertir un entero en BigDecimal: new BigDecimal(diasDiff)
-			 *
-			 * Sumar 2 BigDecimals: usar metodo "add" de la clase BigDecimal
-			 *
-			 * Multiplicar 2 BigDecimals: usar metodo "multiply" de la clase BigDecimal
-			 *
-			 *
-			 * Paso de util.Date a sql.Date java.sql.Date sqlFechaIni = new
-			 * java.sql.Date(sqlFechaIni.getTime());
-			 *
-			 *
-			 * Recuerda que hay casos donde la fecha fin es nula, por lo que se debe de
-			 * calcular sumando los dias de alquiler (ver variable DIAS_DE_ALQUILER) a la
-			 * fecha ini.
-			 */
+			
 
 			// Verificamos que el coche existe
 			int car_exists_index = 1; // Índice para el parámetro en la consulta
@@ -168,26 +144,49 @@ public class ServicioImpl implements Servicio {
 				throw new SQLException(); // Lanza excepción
 			}
 
-			st_getDatosModelo = con.prepareStatement( // Preparar la consulta para obtener datos del modelo
-					"SELECT m.id_modelo, m.nombre, m.precio_cada_dia, m.capacidad_deposito, m.tipo_combustible, pc.precio_por_litro "
-							+ "FROM vehiculos v " + "JOIN modelos m ON v.id_modelo = m.id_modelo "
-							+ "JOIN precio_combustible pc ON m.tipo_combustible = pc.tipo_combustible "
-							+ "WHERE v.matricula = ?");
+			// Primero, obtenemos el id_modelo del vehículo
+			PreparedStatement st_getIdModelo = con.prepareStatement(
+			    "SELECT id_modelo FROM vehiculos WHERE matricula = ?");
+			st_getIdModelo.setString(1, matricula);
+			ResultSet rs_getIdModelo = st_getIdModelo.executeQuery();
 
-			st_getDatosModelo.setString(1, matricula); // Asignar la matrícula
-			rs_getDatosModelo = st_getDatosModelo.executeQuery(); // Ejecutar la consulta
-
-			if (!rs_getDatosModelo.next()) { // Si no se encontraron datos del modelo
-				throw new SQLException("No se pudo obtener información del modelo del vehículo"); // Lanza excepción
+			if (!rs_getIdModelo.next()) {
+			    throw new SQLException("No se pudo obtener el id_modelo del vehículo");
 			}
+			int idModelo = rs_getIdModelo.getInt("id_modelo");
+			rs_getIdModelo.close();
+			st_getIdModelo.close();
 
-			// Obtener los datos del modelo
-			int idModelo = rs_getDatosModelo.getInt("id_modelo"); // Obtiene el ID del modelo
-			String nombreModelo = rs_getDatosModelo.getString("nombre"); // Obtiene el nombre del modelo
-			BigDecimal precioPorDia = rs_getDatosModelo.getBigDecimal("precio_cada_dia"); // Obtiene el precio por día
-			int capacidadDeposito = rs_getDatosModelo.getInt("capacidad_deposito"); // Obtiene la capacidad del depósito
-			String tipoCombustible = rs_getDatosModelo.getString("tipo_combustible"); // Obtiene el tipo de combustible
-			BigDecimal precioPorLitro = rs_getDatosModelo.getBigDecimal("precio_por_litro"); // Obtiene el precio por litro
+			// Ahora, obtenemos los datos del modelo usando el id_modelo
+			PreparedStatement st_getModelo = con.prepareStatement(
+			    "SELECT nombre, precio_cada_dia, capacidad_deposito, tipo_combustible FROM modelos WHERE id_modelo = ?");
+			st_getModelo.setInt(1, idModelo);
+			ResultSet rs_getModelo = st_getModelo.executeQuery();
+
+			if (!rs_getModelo.next()) {
+			    throw new SQLException("No se pudo obtener información del modelo del vehículo");
+			}
+			String nombreModelo = rs_getModelo.getString("nombre");
+			BigDecimal precioPorDia = rs_getModelo.getBigDecimal("precio_cada_dia");
+			int capacidadDeposito = rs_getModelo.getInt("capacidad_deposito");
+			String tipoCombustible = rs_getModelo.getString("tipo_combustible");
+
+			rs_getModelo.close();
+			st_getModelo.close();
+
+			// Por último, obtenemos el precio por litro del tipo de combustible
+			PreparedStatement st_getPrecioCombustible = con.prepareStatement(
+			    "SELECT precio_por_litro FROM precio_combustible WHERE tipo_combustible = ?");
+			st_getPrecioCombustible.setString(1, tipoCombustible);
+			ResultSet rs_getPrecioCombustible = st_getPrecioCombustible.executeQuery();
+
+			if (!rs_getPrecioCombustible.next()) {
+			    throw new SQLException("No se pudo obtener el precio del combustible");
+			}
+			BigDecimal precioPorLitro = rs_getPrecioCombustible.getBigDecimal("precio_por_litro");
+
+			rs_getPrecioCombustible.close();
+			st_getPrecioCombustible.close();
 
 			// Calcular el importe de la factura
 			BigDecimal importeAlquiler = precioPorDia.multiply(new BigDecimal(diasDiff)); // Calcula el importe del alquiler
