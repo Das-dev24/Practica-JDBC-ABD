@@ -278,6 +278,7 @@ public class ServicioImpl implements Servicio {
 			} catch (SQLException e) {
 				LOGGER.error("Error al cerrar recursos: " + e.getMessage()); // Registra el error al cerrar recursos
 			}
+			//Fin del programa
 		}
 	}
 }
