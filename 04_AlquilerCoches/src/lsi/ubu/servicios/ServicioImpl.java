@@ -1,3 +1,4 @@
+//Autores: Óscar Fuentes Paniego, Diego Alonso Soria, Hugo Solís Hompanera
 package lsi.ubu.servicios;
 
 import java.math.BigDecimal;
@@ -46,8 +47,7 @@ public class ServicioImpl implements Servicio {
 
 		PreparedStatement st_Insert = null; // Para insertar la reserva
 
-		PreparedStatement st_getDatosModelo = null; // Para obtener datos del modelo del vehículo
-		ResultSet rs_getDatosModelo = null; // Resultado de la consulta del modelo
+
 
 		PreparedStatement st_createFactura = null; // Para crear la factura
 		ResultSet rs_createFactura = null; // Resultado de la creación de la factura

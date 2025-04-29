@@ -1,3 +1,5 @@
+//Autores: Óscar Fuentes Paniego, Diego Alonso Soria, Hugo Solís Hompanera
+
 package lsi.ubu.excepciones;
 
 import java.sql.SQLException;
